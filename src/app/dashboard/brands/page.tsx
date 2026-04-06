@@ -23,6 +23,7 @@ export default function BrandsPage() {
   const [brandName, setBrandName] = useState("")
   const [brandWebsite, setBrandWebsite] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [monitoring, setMonitoring] = useState(false)
 
   useEffect(() => {
     fetchBrands()
@@ -99,6 +100,7 @@ export default function BrandsPage() {
   }
 
   const handleRunMonitor = async () => {
+    setMonitoring(true)
     try {
       const res = await fetch("/api/monitor/trigger", { method: "POST" })
       if (res.ok) {
@@ -106,6 +108,8 @@ export default function BrandsPage() {
       }
     } catch (error) {
       console.error("Failed to trigger monitor:", error)
+    } finally {
+      setMonitoring(false)
     }
   }
 
@@ -127,20 +131,9 @@ export default function BrandsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRunMonitor}>
+          <Button variant="outline" onClick={handleRunMonitor} disabled={monitoring}>
             <Play className="h-4 w-4 mr-1" />
-            Run Monitor
-          </Button>
-          <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Add Brand
-          </Button>
-        </div>
-      </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRunMonitor}>
-            <Play className="h-4 w-4 mr-1" />
-            Run Monitor
+            {monitoring ? "Running..." : "Run Monitor"}
           </Button>
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4" />
