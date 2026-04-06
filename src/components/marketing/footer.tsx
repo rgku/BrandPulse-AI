@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Activity, Send, GitFork, Linkedin } from "lucide-react"
+import { Activity, Send, GitFork, Globe } from "lucide-react"
 
 export function Footer() {
   return (
@@ -55,7 +55,7 @@ export function Footer() {
               <GitFork className="h-5 w-5" />
             </a>
             <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-              <Linkedin className="h-5 w-5" />
+              <Globe className="h-5 w-5" />
             </a>
           </div>
         </div>
