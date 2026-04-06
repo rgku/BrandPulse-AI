@@ -26,8 +26,6 @@ export default function BrandsPage() {
   const [monitoring, setMonitoring] = useState(false)
   const [monitorError, setMonitorError] = useState("")
   const [monitorSuccess, setMonitorSuccess] = useState(false)
-  const [monitorError, setMonitorError] = useState("")
-  const [monitorSuccess, setMonitorSuccess] = useState(false)
 
   useEffect(() => {
     fetchBrands()
