@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Loader2, Play } from "lucide-react"
+import { Plus, Loader2, Play, AlertCircle } from "lucide-react"
 
 interface Brand {
   id: string
@@ -24,6 +24,10 @@ export default function BrandsPage() {
   const [brandWebsite, setBrandWebsite] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [monitoring, setMonitoring] = useState(false)
+  const [monitorError, setMonitorError] = useState("")
+  const [monitorSuccess, setMonitorSuccess] = useState(false)
+  const [monitorError, setMonitorError] = useState("")
+  const [monitorSuccess, setMonitorSuccess] = useState(false)
 
   useEffect(() => {
     fetchBrands()
@@ -101,12 +105,20 @@ export default function BrandsPage() {
 
   const handleRunMonitor = async () => {
     setMonitoring(true)
+    setMonitorError("")
+    setMonitorSuccess(false)
     try {
       const res = await fetch("/api/monitor/trigger", { method: "POST" })
+      const data = await res.json()
       if (res.ok) {
+        setMonitorSuccess(true)
         fetchScores()
+        setTimeout(() => setMonitorSuccess(false), 3000)
+      } else {
+        setMonitorError(data.error || "Monitoring failed")
       }
     } catch (error) {
+      setMonitorError("Failed to trigger monitor")
       console.error("Failed to trigger monitor:", error)
     } finally {
       setMonitoring(false)
@@ -141,6 +153,19 @@ export default function BrandsPage() {
           </Button>
         </div>
       </div>
+
+      {monitorError && (
+        <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive flex items-center gap-2">
+          <AlertCircle className="h-4 w-4" />
+          {monitorError}
+        </div>
+      )}
+
+      {monitorSuccess && (
+        <div className="rounded-md bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-400">
+          Monitoring complete! Scores updated.
+        </div>
+      )}
 
       {brands.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-lg">
