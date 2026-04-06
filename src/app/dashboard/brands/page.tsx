@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Loader2 } from "lucide-react"
+import { Plus, Loader2, Play } from "lucide-react"
 
 interface Brand {
   id: string
@@ -17,6 +17,7 @@ interface Brand {
 
 export default function BrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([])
+  const [scores, setScores] = useState<Record<string, Record<string, number>>>({})
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [brandName, setBrandName] = useState("")
@@ -25,6 +26,7 @@ export default function BrandsPage() {
 
   useEffect(() => {
     fetchBrands()
+    fetchScores()
   }, [])
 
   const fetchBrands = async () => {
@@ -38,6 +40,25 @@ export default function BrandsPage() {
       console.error("Failed to fetch brands:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchScores = async () => {
+    try {
+      const res = await fetch("/api/monitor")
+      if (res.ok) {
+        const data = await res.json()
+        const scoresMap: Record<string, Record<string, number>> = {}
+        for (const item of data) {
+          if (!scoresMap[item.brandId]) {
+            scoresMap[item.brandId] = {}
+          }
+          scoresMap[item.brandId][item.engine] = item.visibility
+        }
+        setScores(scoresMap)
+      }
+    } catch (error) {
+      console.error("Failed to fetch scores:", error)
     }
   }
 
@@ -70,9 +91,36 @@ export default function BrandsPage() {
       const res = await fetch(`/api/brands/${id}`, { method: "DELETE" })
       if (res.ok) {
         fetchBrands()
+        fetchScores()
       }
     } catch (error) {
       console.error("Failed to delete brand:", error)
+    }
+  }
+
+  const handleRunMonitor = async () => {
+    try {
+      const res = await fetch("/api/monitor/trigger", { method: "POST" })
+      if (res.ok) {
+        fetchScores()
+      }
+    } catch (error) {
+      console.error("Failed to trigger monitor:", error)
+    }
+  }
+    } catch (error) {
+      console.error("Failed to delete brand:", error)
+    }
+  }
+
+  const handleRunMonitor = async () => {
+    try {
+      const res = await fetch("/api/monitor/trigger", { method: "POST" })
+      if (res.ok) {
+        fetchScores()
+      }
+    } catch (error) {
+      console.error("Failed to trigger monitor:", error)
     }
   }
 
@@ -93,10 +141,27 @@ export default function BrandsPage() {
             Manage the brands you want to monitor across AI engines.
           </p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4" />
-          Add Brand
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRunMonitor}>
+            <Play className="h-4 w-4 mr-1" />
+            Run Monitor
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Add Brand
+          </Button>
+        </div>
+      </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRunMonitor}>
+            <Play className="h-4 w-4 mr-1" />
+            Run Monitor
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Add Brand
+          </Button>
+        </div>
       </div>
 
       {brands.length === 0 ? (
@@ -110,7 +175,7 @@ export default function BrandsPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {brands.map((brand) => (
-            <BrandCard key={brand.id} brand={brand} onDelete={handleDeleteBrand} />
+            <BrandCard key={brand.id} brand={brand} scores={scores[brand.id]} onDelete={handleDeleteBrand} />
           ))}
         </div>
       )}
