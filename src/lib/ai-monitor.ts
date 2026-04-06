@@ -1,11 +1,5 @@
 import { prisma } from "@/lib/prisma"
 import { aiEngines, scoreWeights } from "@/lib/constants"
-import OpenAI from "openai"
-import { GoogleGenerativeAI } from "@google/generative-ai"
-
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null
-const perplexityOpenai = process.env.PERPLEXITY_API_KEY ? new OpenAI({ apiKey: process.env.PERPLEXITY_API_KEY, baseURL: "https://api.perplexity.ai" }) : null
-const genAI = process.env.GOOGLE_API_KEY ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY) : null
 
 const MONITOR_PROMPT = (brandName: string, website: string | null) =>
   `You are an AI assistant. A user asked: "What do you know about ${brandName}${website ? ` (website: ${website})` : ""}? How does it compare to alternatives?"\n\nRespond naturally as you would to a real user. Be honest, balanced, and informative. Keep it to 2-3 sentences.`
@@ -73,8 +67,10 @@ export function calculateVisibilityScore(response: string, brandName: string): n
 }
 
 async function queryChatGPT(prompt: string): Promise<string | null> {
-  if (!openai) return null
   try {
+    const { OpenAI } = await import("openai")
+    if (!process.env.OPENAI_API_KEY) return null
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
@@ -88,8 +84,10 @@ async function queryChatGPT(prompt: string): Promise<string | null> {
 }
 
 async function queryGemini(prompt: string): Promise<string | null> {
-  if (!genAI) return null
   try {
+    if (!process.env.GOOGLE_API_KEY) return null
+    const { GoogleGenerativeAI } = await import("@google/generative-ai")
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
     const result = await model.generateContent(prompt)
     return result.response.text().trim() || null
@@ -99,8 +97,10 @@ async function queryGemini(prompt: string): Promise<string | null> {
 }
 
 async function queryPerplexity(prompt: string): Promise<string | null> {
-  if (!perplexityOpenai) return null
   try {
+    const { OpenAI } = await import("openai")
+    if (!process.env.PERPLEXITY_API_KEY) return null
+    const perplexityOpenai = new OpenAI({ apiKey: process.env.PERPLEXITY_API_KEY, baseURL: "https://api.perplexity.ai" })
     const response = await perplexityOpenai.chat.completions.create({
       model: "sonar",
       messages: [{ role: "user", content: prompt }],
@@ -114,9 +114,10 @@ async function queryPerplexity(prompt: string): Promise<string | null> {
 }
 
 async function queryCopilot(prompt: string): Promise<string | null> {
-  // Copilot has no public API. Use GPT-4o-mini as closest proxy with Copilot-style framing
-  if (!openai) return null
   try {
+    const { OpenAI } = await import("openai")
+    if (!process.env.OPENAI_API_KEY) return null
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
