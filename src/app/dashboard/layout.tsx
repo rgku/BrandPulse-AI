@@ -28,16 +28,3 @@ export default async function DashboardLayout({
     </SessionProvider>
   )
 }
-
-  return (
-    <SessionProvider session={session}>
-      <div className="min-h-screen bg-background">
-        <Sidebar />
-        <div className="md:pl-64">
-          <DashboardHeader />
-          <main className="p-6">{children}</main>
-        </div>
-      </div>
-    </SessionProvider>
-  )
-}
