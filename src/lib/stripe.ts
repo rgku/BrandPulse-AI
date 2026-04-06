@@ -6,4 +6,3 @@ export const stripe = process.env.STRIPE_SECRET_KEY
       typescript: true,
     })
   : null
-  : null
