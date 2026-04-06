@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       where: { userId: session.user.id },
     })
 
-    const maxBrands = user?.email === "test2@gmail.com" ? 50 : user?.plan === "free" ? 3 : user?.plan === "starter" ? 10 : user?.plan === "pro" ? 15 : Infinity
+    const maxBrands = 100
 
     if (brandCount >= maxBrands) {
       return NextResponse.json(
