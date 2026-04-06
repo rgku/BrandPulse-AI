@@ -188,16 +188,6 @@ export async function runBrandMonitor(
   return { visibility, response, sentiment }
 }
 
-  if (!response) {
-    throw new Error(`Failed to get response from ${engine}. Check API key and configuration.`)
-  }
-
-  const visibility = calculateVisibilityScore(response, brandName)
-  const sentiment = analyzeSentiment(response)
-
-  return { visibility, response, sentiment }
-}
-
 export async function monitorBrand(brandId: string) {
   const brand = await prisma.brand.findUnique({ where: { id: brandId } })
   if (!brand) throw new Error("Brand not found")
