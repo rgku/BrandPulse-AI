@@ -108,21 +108,6 @@ export default function BrandsPage() {
       console.error("Failed to trigger monitor:", error)
     }
   }
-    } catch (error) {
-      console.error("Failed to delete brand:", error)
-    }
-  }
-
-  const handleRunMonitor = async () => {
-    try {
-      const res = await fetch("/api/monitor/trigger", { method: "POST" })
-      if (res.ok) {
-        fetchScores()
-      }
-    } catch (error) {
-      console.error("Failed to trigger monitor:", error)
-    }
-  }
 
   if (loading) {
     return (
