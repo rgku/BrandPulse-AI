@@ -179,7 +179,17 @@ export async function runBrandMonitor(
   }
 
   if (!response) {
-    response = generateMockResponse(brandName, website, engine)
+    throw new Error(`Failed to get response from ${engine}. Check API key and configuration.`)
+  }
+
+  const visibility = calculateVisibilityScore(response, brandName)
+  const sentiment = analyzeSentiment(response)
+
+  return { visibility, response, sentiment }
+}
+
+  if (!response) {
+    throw new Error(`Failed to get response from ${engine}. Check API key and configuration.`)
   }
 
   const visibility = calculateVisibilityScore(response, brandName)
